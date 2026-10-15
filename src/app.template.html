@@ -1,0 +1,656 @@
+<title>Verinex Client Onboarding</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: white brand bar with logo + section tabs; one section on screen at a time, routed by #hash.
+   Brand: Verinex blue #3b728e, Verinex green #62b88a, white ground (from verinexgroup.com). */
+:root {
+  --brand: #3b728e;        /* Verinex blue */
+  --brand-2: #62b88a;      /* Verinex green */
+  --brand-grad: linear-gradient(90deg, #3b728e, #62b88a);
+  --accent: #3b728e;
+  --accent-ink: #2f6b55;   /* green dark enough for small text on white */
+  --accent-soft: #e8f3ef;
+  --bg: #ffffff;
+  --bar: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f3f7f6;
+  --line: #dbe5e3;
+  --fg: #1f3a48;
+  --muted: #5d7380;
+  --ok: #2f8a5c; --ok-soft: #e6f4ec;
+  --warn: #9A5B00; --warn-soft: #FDF1DC;
+  --bad: #B42318;
+  --shadow: 0 1px 2px rgba(59,114,142,.06), 0 4px 16px rgba(59,114,142,.07);
+  --f-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --brand: #3b728e; --brand-2: #62b88a; --accent: #5e9ab8; --accent-ink: #7fcfa3; --accent-soft: #17302e;
+  --bg: #0e1a20; --bar: #13222a; --surface: #14232b; --surface-2: #1a2c35; --line: #29404b;
+  --fg: #e3edf0; --muted: #98adb6; --ok: #62b88a; --ok-soft: #153126; --warn: #F0B455; --warn-soft: #3A2C12; --bad: #F97066;
+  --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --brand: #3b728e; --brand-2: #62b88a; --accent: #5e9ab8; --accent-ink: #7fcfa3; --accent-soft: #17302e;
+  --bg: #0e1a20; --bar: #13222a; --surface: #14232b; --surface-2: #1a2c35; --line: #29404b;
+  --fg: #e3edf0; --muted: #98adb6; --ok: #62b88a; --ok-soft: #153126; --warn: #F0B455; --warn-soft: #3A2C12; --bad: #F97066;
+  --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--f-body); }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.9rem, 4.2vw, 2.9rem); font-weight: 700; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.08rem; font-weight: 600; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1180px; margin: 0 auto; }
+.eyebrow { font: 500 .74rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
+.muted { color: var(--muted); }
+
+/* Brand bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bar); color: var(--fg); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
+.bar::before { content: ""; display: block; height: 3px; background: var(--brand-grad); margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+.bar .wrap { display: flex; align-items: center; gap: 20px; padding-block: 10px; flex-wrap: wrap; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.logo img { height: 46px; width: auto; display: block; }
+.tabs { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.tabs a { color: inherit; text-decoration: none; padding: 7px 12px; border-radius: 999px; font-weight: 600; font-size: .92rem; white-space: nowrap; opacity: .78; }
+.tabs a:hover { opacity: 1; background: var(--surface-2); }
+.tabs a[aria-current="page"] { opacity: 1; background: var(--brand); color: #fff; }
+@media (max-width: 760px) { .tabs { margin-left: 0; width: 100%; } }
+
+main { padding-block: 32px 64px; }
+section[data-view] { display: grid; gap: 28px; }
+
+/* Overview */
+.hero { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: clamp(24px, 5vw, 48px); display: grid; gap: 18px; position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; border-radius: 50%; border: 36px solid var(--accent-soft); pointer-events: none; }
+.hero::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #3b728e, #62b88a); }
+.hero > * { position: relative; z-index: 1; max-width: 62ch; }
+.lede { font-size: 1.15rem; color: var(--muted); }
+.cta-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer; text-decoration: none; color: var(--fg); }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.ghost { background: transparent; }
+.btn.small { padding: 6px 12px; font-size: .88rem; border-radius: 8px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn.danger { color: var(--bad); }
+
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.model { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.model .tag { font: 500 .7rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sectionnav { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.sectionnav a { display: grid; gap: 4px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--fg); }
+.sectionnav a:hover { border-color: var(--accent); }
+.sectionnav a span { color: var(--muted); font-size: .92rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 28px; padding-top: 6px; }
+.facts div { display: grid; gap: 2px; }
+.facts strong { font: 600 1.5rem/1 var(--f-display); color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.facts span { font-size: .88rem; color: var(--muted); }
+
+/* Section header */
+.head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.head > div { display: grid; gap: 8px; max-width: 68ch; }
+
+/* Example banner */
+.banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; background: var(--warn-soft); color: var(--warn); border-radius: 10px; font-weight: 600; font-size: .95rem; }
+.banner .btn { margin-left: auto; }
+
+/* Questions layout */
+.qlayout { display: grid; grid-template-columns: 220px minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+@media (max-width: 1020px) { .qlayout { grid-template-columns: minmax(0, 1fr); } .steps { flex-direction: row !important; overflow-x: auto; } .steps button { white-space: nowrap; } }
+.steps { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 90px; }
+.steps button { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 0; background: transparent; border-radius: 10px; text-align: left; cursor: pointer; font-weight: 600; color: var(--muted); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
+.steps .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 500 .78rem/1 var(--f-mono); border: 1.5px solid var(--line); flex: none; }
+.steps .done .n { background: var(--ok); border-color: var(--ok); color: #fff; }
+.steps button[aria-current="step"] .n { border-color: var(--accent); color: var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.formcard { padding: clamp(18px, 3vw, 30px); display: grid; gap: 26px; }
+.formcard .intro { display: grid; gap: 6px; }
+.q { display: grid; gap: 10px; animation: rise .25s ease both; }
+@keyframes rise { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .q { animation: none; } }
+.q > label, .q > .qlabel { font-weight: 600; }
+.q .req { color: var(--accent); margin-left: 2px; }
+.q .branch { font: 500 .68rem/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent-soft); padding: 4px 7px; border-radius: 4px; margin-left: 8px; vertical-align: 2px; }
+.q input[type=text], .q input[type=number], .q input[type=date], .q select, .field { width: 100%; max-width: 520px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.q input:focus, .q select:focus, .field:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.hint { font-size: .88rem; color: var(--muted); }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.opt { text-align: left; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; display: grid; gap: 3px; }
+.opt:hover { border-color: var(--accent); }
+.opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.opt b { font-weight: 600; }
+.opt small { color: var(--muted); font-size: .86rem; line-height: 1.35; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); cursor: pointer; font-weight: 600; font-size: .92rem; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.note { display: grid; gap: 4px; padding: 12px 14px; border-left: 3px solid var(--brand-2); background: var(--surface-2); border-radius: 0 8px 8px 0; font-size: .93rem; max-width: 620px; }
+.note b { font-family: var(--f-display); font-weight: 600; font-size: .9rem; }
+.formnav { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); padding-top: 18px; flex-wrap: wrap; }
+
+.path { padding: 20px; display: grid; gap: 14px; position: sticky; top: 90px; }
+.path h3 { font-size: 1rem; }
+.path dl { margin: 0; display: grid; gap: 10px; }
+.path dt { font: 500 .68rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.path dd { margin: 3px 0 0; font-weight: 600; }
+.meter { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--brand-grad); border-radius: 99px; transition: width .3s; }
+.statline { display: flex; justify-content: space-between; font-size: .88rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Process */
+.timeline { display: grid; gap: 0; position: relative; }
+.phase { display: grid; grid-template-columns: 120px 28px minmax(0, 1fr); gap: 16px; }
+.phase .when { font: 500 .8rem/1.3 var(--f-mono); color: var(--muted); padding-top: 22px; text-align: right; }
+.phase .rail { position: relative; display: flex; justify-content: center; }
+.phase .rail::before { content: ""; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.phase:first-child .rail::before { top: 24px; }
+.phase:last-child .rail::before { bottom: calc(100% - 24px); }
+.phase .dot { position: relative; margin-top: 18px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--brand-2); }
+.phase .body { padding: 14px 0 22px; display: grid; gap: 8px; }
+.phase .body .card { padding: 16px 18px; display: grid; gap: 8px; box-shadow: none; }
+.owner { font: 500 .7rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 5px; background: var(--surface-2); color: var(--muted); justify-self: start; }
+.phase ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: .93rem; }
+.variant { font-size: .93rem; background: var(--accent-soft); padding: 10px 12px; border-radius: 8px; }
+@media (max-width: 640px) { .phase { grid-template-columns: 20px minmax(0, 1fr); } .phase .when { display: none; } .phase .mwhen { display: block !important; } }
+.mwhen { display: none; font: 500 .78rem/1 var(--f-mono); color: var(--muted); }
+
+/* Documents */
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.doccat { display: grid; gap: 10px; }
+.doccat h3 { display: flex; align-items: baseline; gap: 10px; }
+.doccat h3 span { font: 500 .78rem/1 var(--f-mono); color: var(--muted); }
+.doc { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.doc:last-child { border-bottom: 0; }
+.doc .name { font-weight: 600; }
+.doc .why { font-size: .9rem; color: var(--muted); }
+.doc .reason { display: inline-block; margin-top: 6px; font-size: .78rem; padding: 3px 8px; border-radius: 5px; background: var(--surface-2); color: var(--muted); }
+.doc.got .name { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer; font-size: .86rem; font-weight: 600; color: var(--muted); padding: 4px; }
+.toggle i { width: 40px; height: 22px; border-radius: 99px; background: var(--line); position: relative; transition: background .2s; flex: none; }
+.toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.toggle[aria-checked="true"] { color: var(--ok); }
+.toggle[aria-checked="true"] i { background: var(--ok); }
+.toggle[aria-checked="true"] i::after { transform: translateX(18px); }
+@media (prefers-reduced-motion: reduce) { .toggle i, .toggle i::after, .meter i { transition: none; } }
+.secure { display: flex; gap: 12px; padding: 14px 16px; border-radius: 10px; background: var(--surface); border: 1px dashed var(--accent); font-size: .94rem; }
+
+/* Finalize */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start; }
+.two > * { min-width: 0; }
+.ready { padding: 22px; display: grid; gap: 16px; }
+.score { display: flex; gap: 24px; flex-wrap: wrap; }
+.score div { display: grid; gap: 6px; min-width: 120px; flex: 1; }
+.score strong { font: 700 1.9rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.checklist { display: grid; gap: 2px; }
+.checklist .toggle { justify-content: flex-start; width: 100%; padding: 8px 4px; font-size: .95rem; color: var(--fg); font-weight: 500; text-align: left; }
+.checklist .toggle[aria-checked="true"] { color: var(--muted); }
+.summary { font: .82rem/1.55 var(--f-mono); background: var(--surface-2); border-radius: 10px; padding: 16px; white-space: pre-wrap; overflow-x: auto; max-height: 360px; overflow-y: auto; margin: 0; }
+.signoff { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.signoff label { display: grid; gap: 6px; font-weight: 600; font-size: .92rem; }
+.complete { padding: 18px; border-radius: 12px; background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+
+/* Issues */
+.search { position: relative; max-width: 320px; flex: 1 1 220px; }
+.search input { width: 100%; padding: 9px 12px 9px 34px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); }
+.issues { display: grid; gap: 10px; }
+.issue { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.issue summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; gap: 12px; align-items: center; font-weight: 600; }
+.issue summary::-webkit-details-marker { display: none; }
+.issue summary::after { content: "+"; margin-left: auto; font: 500 1.2rem/1 var(--f-mono); color: var(--muted); }
+.issue[open] summary::after { content: "–"; }
+.issue .cat { font: 500 .68rem/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent-soft); padding: 5px 7px; border-radius: 4px; flex: none; }
+.issue .res { padding: 0 18px 16px; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.issue .res div { display: grid; gap: 4px; font-size: .94rem; }
+.issue .res dt { font: 500 .68rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 10px; font-weight: 600; box-shadow: var(--shadow); z-index: 50; max-width: calc(100% - 32px); }
+footer { padding-block: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+</style>
+
+<header class="bar gutter">
+  <div class="wrap">
+    <a class="logo" href="#overview" aria-label="Verinex Group home">
+      <img src="__LOGO__" alt="The Verinex Group" width="146" height="46">
+    </a>
+    <nav class="tabs" aria-label="Onboarding sections">
+      <a href="#overview">Overview</a>
+      <a href="#questions">Questions</a>
+      <a href="#process">Process</a>
+      <a href="#documents">Documents</a>
+      <a href="#finalize">Finalize</a>
+      <a href="#issues">Issues &amp; resolutions</a>
+    </nav>
+  </div>
+</header>
+
+<main class="gutter"><div class="wrap">
+
+  <!-- OVERVIEW -->
+  <section data-view="overview">
+    <div class="hero">
+      <span class="eyebrow">Client onboarding guide</span>
+      <h1>Welcome to Verinex Group. Let&rsquo;s set up your revenue cycle the right way.</h1>
+      <p class="lede">This guide walks your practice through everything we need to start billing for you: a short questionnaire that adapts to your systems, the documents to gather, what happens week by week, and how we sign off on go-live.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#questions">Start the questionnaire</a>
+        <a class="btn" href="#documents">See required documents</a>
+      </div>
+      <div class="facts">
+        <div><strong>3–5</strong><span>weeks to go-live</span></div>
+        <div><strong>5</strong><span>questionnaire steps</span></div>
+        <div><strong>9</strong><span>onboarding phases</span></div>
+      </div>
+    </div>
+
+    <div class="head"><div><span class="eyebrow">The first decision</span><h2>Three ways to work with us</h2>
+      <p class="muted">Your answer to this changes the rest of the questionnaire, the documents we ask for, and how visits reach our billing team.</p></div></div>
+    <div class="grid-3">
+      <div class="model"><span class="tag">Model A</span><h3>Your EHR + your billing system</h3><p class="muted">Our billers log in to your software with their own accounts. Nothing moves; you keep full ownership of the system.</p></div>
+      <div class="model"><span class="tag">Model B</span><h3>Your EHR + Verinex billing</h3><p class="muted">Providers keep documenting where they are. Visits reach our billing platform by API, scheduled export, manual pull or superbill upload.</p></div>
+      <div class="model"><span class="tag">Model C</span><h3>Verinex EHR + billing</h3><p class="muted">One platform for scheduling, notes and billing. We migrate your data and train your staff.</p></div>
+    </div>
+
+    <div class="head"><div><span class="eyebrow">In this guide</span><h2>Sections</h2></div></div>
+    <nav class="sectionnav" aria-label="Guide sections">
+      <a href="#questions"><b>Questions</b><span>An adaptive intake form. Each answer opens only the follow-ups that apply.</span></a>
+      <a href="#process"><b>Process</b><span>Nine phases from discovery call to 90-day review, with owners and timing.</span></a>
+      <a href="#documents"><b>Required documents</b><span>A checklist built from your answers. Mark items as received.</span></a>
+      <a href="#finalize"><b>Finalize onboarding</b><span>Go-live readiness, a summary to share, and sign-off.</span></a>
+      <a href="#issues"><b>Issues &amp; resolutions</b><span>Common onboarding problems and how we fix them.</span></a>
+    </nav>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section data-view="questions" hidden>
+    <div class="head"><div><span class="eyebrow">Step-by-step intake</span><h2>Onboarding questions</h2>
+      <p class="muted">Answers save in this browser as you go. Follow-up questions appear based on what you choose.</p></div>
+      <div class="cta-row"><button class="btn small ghost danger" id="resetBtn" type="button">Clear answers</button></div></div>
+    <div class="banner" id="exampleBanner" hidden>Showing example answers for a 3-provider therapy practice on Kareo.
+      <button class="btn small" id="blankBtn" type="button">Start with a blank form</button></div>
+    <div class="qlayout">
+      <nav class="steps" id="steps" aria-label="Questionnaire steps"></nav>
+      <form class="card formcard" id="form" novalidate></form>
+      <aside class="card path" id="path" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section data-view="process" hidden>
+    <div class="head"><div><span class="eyebrow">Week by week</span><h2>Onboarding process</h2>
+      <p class="muted" id="processModel">Typical timeline from first call to steady state. Phases overlap; documents and access requests run in parallel.</p></div></div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <!-- DOCUMENTS -->
+  <section data-view="documents" hidden>
+    <div class="head"><div><span class="eyebrow">Built from your answers</span><h2>Required documents</h2>
+      <p class="muted">Only what applies to your practice is listed. Each item shows why we need it.</p></div>
+      <div class="toolbar" role="group" aria-label="Filter documents">
+        <button class="chip" data-docfilter="all" aria-pressed="true" type="button">All</button>
+        <button class="chip" data-docfilter="open" aria-pressed="false" type="button">Outstanding</button>
+        <button class="chip" data-docfilter="got" aria-pressed="false" type="button">Received</button>
+      </div></div>
+    <div class="card" style="padding:16px 18px; display:grid; gap:8px">
+      <div class="statline"><span id="docCount"></span><span id="docPct"></span></div>
+      <div class="meter"><i id="docMeter" style="width:0"></i></div>
+    </div>
+    <div class="secure"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="flex:none;color:var(--accent)"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span><b>Send documents and passwords through the Verinex secure portal.</b> Never email logins or patient data. If a password was emailed by mistake, change it and send it again through the portal.</span></div>
+    <div id="docs" style="display:grid; gap:24px"></div>
+  </section>
+
+  <!-- FINALIZE -->
+  <section data-view="finalize" hidden>
+    <div class="head"><div><span class="eyebrow">Ready to bill</span><h2>Finalize onboarding</h2>
+      <p class="muted">Go-live happens when every item below is checked. Copy the summary to share it with your team or your Verinex account manager.</p></div></div>
+    <div class="two">
+      <div class="card ready">
+        <div class="score">
+          <div><span class="eyebrow">Questions</span><strong id="qScore">0%</strong><div class="meter"><i id="qMeter"></i></div></div>
+          <div><span class="eyebrow">Documents</span><strong id="dScore">0%</strong><div class="meter"><i id="dMeter"></i></div></div>
+          <div><span class="eyebrow">Go-live checks</span><strong id="gScore">0/10</strong><div class="meter"><i id="gMeter"></i></div></div>
+        </div>
+        <h3>Go-live checklist</h3>
+        <div class="checklist" id="golive"></div>
+      </div>
+      <div style="display:grid; gap:20px; min-width:0">
+        <div class="card ready">
+          <div class="head" style="align-items:center"><h3>Onboarding summary</h3><button class="btn small" id="copyBtn" type="button">Copy summary</button></div>
+          <pre class="summary" id="summary"></pre>
+        </div>
+        <div class="card ready">
+          <h3>Sign-off</h3>
+          <div class="signoff">
+            <label for="soClient">Client signatory<input class="field" id="soClient" type="text" autocomplete="name"></label>
+            <label for="soTitle">Title<input class="field" id="soTitle" type="text"></label>
+            <label for="soRep">Verinex account manager<input class="field" id="soRep" type="text"></label>
+            <label for="soDate">Go-live date<input class="field" id="soDate" type="date"></label>
+          </div>
+          <div class="cta-row"><button class="btn primary" id="completeBtn" type="button">Mark onboarding complete</button></div>
+          <div class="complete" id="completeMsg" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ISSUES -->
+  <section data-view="issues" hidden>
+    <div class="head"><div><span class="eyebrow">Troubleshooting</span><h2>Issues &amp; resolutions</h2>
+      <p class="muted">Problems we see most often during onboarding, who fixes them, and how to stop them happening again.</p></div></div>
+    <div class="toolbar">
+      <label class="search" for="issueQ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="issueQ" type="search" placeholder="Search issues" aria-label="Search issues"></label>
+      <div class="chips" id="issueCats" role="group" aria-label="Filter by category"></div>
+    </div>
+    <div class="issues" id="issueList"></div>
+  </section>
+
+</div></main>
+
+<footer class="gutter"><div class="wrap"><span>Verinex Group &middot; Medical billing &amp; revenue cycle management</span><span>www.verinexgroup.com</span></div></footer>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/*__DATA__*/
+</script>
+<script>
+(function () {
+  const { SOFTWARE, API_LABEL, STEPS, DOCUMENTS, PHASES, GOLIVE, ISSUES } = window.VX;
+  const KEY = 'vx_onboarding_v1';
+  const EXAMPLE = {
+    practiceName: 'Lakeside Counseling Group, PLLC', specialty: 'Behavioral health / therapy', providers: 3, locations: 1, states: 'TX',
+    entity: 'group', payers: ['commercial', 'medicaid', 'selfpay'], volume: 420, prescribers: 'no', lab: 'no',
+    model: 'client-ehr-verinex-billing', software: 'kareo', visitFeed: 'api', apiAuthorize: 'yes', notesAccess: 'yes', coding: 'provider',
+    priorBiller: 'inhouse', openAr: '$25k–$100k', oldAr: 'verinex', clearinghouse: 'Built into our software', era: 'some', eft: 'some',
+    credStatus: 'some', credService: 'yes', caqh: 'unsure', newProviders: 'yes',
+    services: ['eligibility', 'charge', 'submission', 'posting', 'denials', 'ar', 'credentialing', 'reporting'], channel: 'email', reportFreq: 'monthly'
+  };
+
+  let state = load() || { answers: { ...EXAMPLE }, example: true, docs: {}, golive: {}, signoff: {}, step: 0, complete: null };
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  const A = () => state.answers;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2400);
+  }
+
+  /* ---------- routing ---------- */
+  const VIEWS = ['overview', 'questions', 'process', 'documents', 'finalize', 'issues'];
+  function route() {
+    let h = location.hash.slice(1) || 'overview';
+    const m = h.match(/^q-(\w+)$/);
+    if (m) { const i = STEPS.findIndex(s => s.id === m[1]); if (i >= 0) state.step = i; h = 'questions'; }
+    if (!VIEWS.includes(h)) h = 'overview';
+    document.querySelectorAll('[data-view]').forEach(s => (s.hidden = s.dataset.view !== h));
+    document.querySelectorAll('.tabs a').forEach(a => {
+      if (a.getAttribute('href') === '#' + h) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    render(h);
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+
+  function render(view) {
+    if (view === 'questions') renderQuestions();
+    if (view === 'process') renderProcess();
+    if (view === 'documents') renderDocs();
+    if (view === 'finalize') renderFinalize();
+    if (view === 'issues') renderIssues();
+  }
+
+  /* ---------- questions ---------- */
+  const visible = (q, a) => !q.show || q.show(a);
+  const answered = (q, a) => { const v = a[q.id]; return Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== ''; };
+  function stepStats(step, a) {
+    const qs = step.questions.filter(q => visible(q, a));
+    return { total: qs.length, done: qs.filter(q => answered(q, a)).length, reqOpen: qs.filter(q => q.required && !answered(q, a)).length };
+  }
+  function allStats() {
+    const a = A(); let t = 0, d = 0;
+    STEPS.forEach(s => { const st = stepStats(s, a); t += st.total; d += st.done; });
+    return { total: t, done: d, pct: t ? Math.round(d / t * 100) : 0 };
+  }
+
+  function renderQuestions() {
+    const a = A();
+    $('#exampleBanner').hidden = !state.example;
+    $('#steps').innerHTML = STEPS.map((s, i) => {
+      const st = stepStats(s, a);
+      const done = st.reqOpen === 0 && st.done > 0;
+      return `<button type="button" data-step="${i}" class="${done ? 'done' : ''}" ${i === state.step ? 'aria-current="step"' : ''}>
+        <span class="n">${done ? '&#10003;' : i + 1}</span>${esc(s.title)}</button>`;
+    }).join('');
+    const step = STEPS[state.step];
+    const qs = step.questions.filter(q => visible(q, a));
+    $('#form').innerHTML = `<div class="intro"><span class="eyebrow">Step ${state.step + 1} of ${STEPS.length}</span><h2>${esc(step.title)}</h2><p class="muted">${esc(step.intro)}</p></div>
+      ${qs.map(q => fieldHtml(q, a)).join('')}
+      <div class="formnav">
+        <button type="button" class="btn" data-nav="-1" ${state.step === 0 ? 'disabled' : ''}>Back</button>
+        ${state.step < STEPS.length - 1
+          ? `<button type="button" class="btn primary" data-nav="1">Next: ${esc(STEPS[state.step + 1].title)}</button>`
+          : `<a class="btn primary" href="#documents">Review required documents</a>`}
+      </div>`;
+    renderPath();
+  }
+
+  function fieldHtml(q, a) {
+    const label = (q.labelFor && q.labelFor(a)) || q.label;
+    const req = q.required ? '<span class="req" aria-hidden="true">*</span>' : '';
+    const branch = q.show && q.id !== 'software' ? '<span class="branch">Follow-up</span>' : '';
+    const v = a[q.id];
+    let ctl = '';
+    if (q.type === 'text' || q.type === 'number' || q.type === 'date') {
+      ctl = `<input id="f_${q.id}" data-q="${q.id}" type="${q.type}" value="${esc(v)}" ${q.hint ? `placeholder="${esc(q.hint)}"` : ''}>`;
+    } else if (q.type === 'select') {
+      const opts = q.options.map(o => typeof o === 'string' ? { v: o, l: o } : o);
+      ctl = `<select id="f_${q.id}" data-q="${q.id}"><option value="">Choose&hellip;</option>${opts.map(o => `<option value="${esc(o.v)}" ${o.v === v ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>`;
+    } else if (q.type === 'single') {
+      ctl = `<div class="opts" role="radiogroup" aria-labelledby="l_${q.id}">${q.options.map(o =>
+        `<button type="button" class="opt" role="radio" aria-checked="${o.v === v}" data-single="${q.id}" data-v="${esc(o.v)}"><b>${esc(o.l)}</b>${o.d ? `<small>${esc(o.d)}</small>` : ''}</button>`).join('')}</div>`;
+    } else if (q.type === 'multi') {
+      const arr = Array.isArray(v) ? v : [];
+      ctl = `<div class="chips" role="group" aria-labelledby="l_${q.id}">${q.options.map(o =>
+        `<button type="button" class="chip" aria-pressed="${arr.includes(o.v)}" data-multi="${q.id}" data-v="${esc(o.v)}">${esc(o.l)}</button>`).join('')}</div>`;
+    }
+    const lab = ['text', 'number', 'date', 'select'].includes(q.type)
+      ? `<label for="f_${q.id}" id="l_${q.id}">${esc(label)}${req}${branch}</label>`
+      : `<div class="qlabel" id="l_${q.id}">${esc(label)}${req}${branch}</div>`;
+    let extra = '';
+    if (q.softwareNote && v) {
+      const sw = SOFTWARE.find(s => s.id === v);
+      if (sw) extra = `<div class="note"><b>${esc(sw.label)} &middot; ${esc(API_LABEL[sw.api])}</b><span>${esc(sw.note)}</span></div>`;
+    }
+    if (q.id === 'apiAuthorize' && v === 'vendor') extra = `<div class="note"><b>Next step</b><span>We will send you the vendor request wording. Until the connection is live, our team pulls visit reports manually so billing is not delayed.</span></div>`;
+    if (q.id === 'accessType' && v === 'shared') extra = `<div class="note"><b>Heads up</b><span>Shared logins break HIPAA audit trails. We will ask for named accounts before go-live.</span></div>`;
+    return `<div class="q">${lab}${ctl}${extra}</div>`;
+  }
+
+  function setAnswer(id, val) {
+    const a = A();
+    if (val === '' || val === undefined) delete a[id]; else a[id] = val;
+    state.example = false; save();
+  }
+
+  $('#form').addEventListener('click', e => {
+    const s = e.target.closest('[data-single]'), m = e.target.closest('[data-multi]'), n = e.target.closest('[data-nav]');
+    if (s) { const id = s.dataset.single; setAnswer(id, A()[id] === s.dataset.v ? undefined : s.dataset.v); renderQuestions(); }
+    if (m) { const id = m.dataset.multi; const arr = new Set(A()[id] || []); arr.has(m.dataset.v) ? arr.delete(m.dataset.v) : arr.add(m.dataset.v); setAnswer(id, [...arr]); renderQuestions(); }
+    if (n) { goStep(state.step + Number(n.dataset.nav)); }
+  });
+  $('#form').addEventListener('change', e => {
+    const id = e.target.dataset.q; if (!id) return;
+    setAnswer(id, e.target.type === 'number' && e.target.value !== '' ? Number(e.target.value) : e.target.value);
+    if (e.target.tagName === 'SELECT') renderQuestions(); else renderPath();
+  });
+  $('#form').addEventListener('submit', e => e.preventDefault());
+  $('#steps').addEventListener('click', e => { const b = e.target.closest('[data-step]'); if (b) goStep(Number(b.dataset.step)); });
+  function goStep(i) {
+    state.step = Math.max(0, Math.min(STEPS.length - 1, i)); save();
+    history.replaceState(null, '', '#q-' + STEPS[state.step].id);
+    renderQuestions(); $('#form').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  $('#blankBtn').addEventListener('click', () => { state = blank(); save(); renderQuestions(); toast('Blank form ready'); });
+  let resetArmed = false;
+  $('#resetBtn').addEventListener('click', e => {
+    if (!resetArmed) { resetArmed = true; e.target.textContent = 'Click again to clear everything'; setTimeout(() => { resetArmed = false; e.target.textContent = 'Clear answers'; }, 4000); return; }
+    resetArmed = false; e.target.textContent = 'Clear answers'; state = blank(); save(); renderQuestions(); toast('Answers cleared');
+  });
+  function blank() { return { answers: {}, example: false, docs: {}, golive: {}, signoff: {}, step: 0, complete: null }; }
+
+  const MODEL_LABEL = {
+    'client-full': 'A · Your EHR + your billing system', 'client-ehr-verinex-billing': 'B · Your EHR + Verinex billing',
+    'verinex-full': 'C · Verinex EHR + billing', 'undecided': 'To be decided on discovery call'
+  };
+  const FEED_LABEL = { api: 'Direct API / database connection', export: 'Scheduled file export (SFTP)', pull: 'Verinex pulls reports manually', push: 'Client uploads superbills' };
+  function feedText(a) {
+    if (a.model === 'client-full') return 'Billers work inside your system';
+    if (a.model === 'verinex-full') return 'Native — visits created in Verinex EHR';
+    if (a.model === 'client-ehr-verinex-billing') {
+      if (a.visitFeed === 'api' && a.apiAuthorize === 'no') return 'Manual pull (API declined)';
+      if (a.visitFeed === 'api' && a.apiAuthorize === 'vendor') return 'Manual pull until vendor enables API';
+      return FEED_LABEL[a.visitFeed] || 'Not chosen';
+    }
+    return 'Not chosen';
+  }
+  function renderPath() {
+    const a = A(), st = allStats(), docs = docList();
+    const sw = SOFTWARE.find(s => s.id === a.software);
+    $('#path').innerHTML = `<h3>Your onboarding path</h3>
+      <div style="display:grid;gap:6px"><div class="statline"><span>Questions answered</span><span>${st.done}/${st.total}</span></div><div class="meter"><i style="width:${st.pct}%"></i></div></div>
+      <dl>
+        <div><dt>Engagement model</dt><dd>${esc(MODEL_LABEL[a.model] || 'Not chosen')}</dd></div>
+        <div><dt>Current software</dt><dd>${esc(sw ? sw.label : 'Not chosen')}</dd></div>
+        <div><dt>Visit data flow</dt><dd>${esc(feedText(a))}</dd></div>
+        <div><dt>Documents needed</dt><dd>${docs.length} &middot; <a href="#documents">view list</a></dd></div>
+      </dl>`;
+  }
+
+  /* ---------- documents ---------- */
+  function docList() {
+    const a = A(), out = [];
+    DOCUMENTS.forEach(c => c.items.forEach(d => { const r = d.when(a); if (r) out.push({ ...d, cat: c.cat, reason: r }); }));
+    return out;
+  }
+  let docFilter = 'all';
+  function renderDocs() {
+    const list = docList(), got = list.filter(d => state.docs[d.id]).length;
+    const pct = list.length ? Math.round(got / list.length * 100) : 0;
+    $('#docCount').textContent = `${got} of ${list.length} documents received`;
+    $('#docPct').textContent = pct + '%';
+    $('#docMeter').style.width = pct + '%';
+    const shown = list.filter(d => docFilter === 'all' || (docFilter === 'got') === !!state.docs[d.id]);
+    const cats = DOCUMENTS.map(c => c.cat).filter(c => shown.some(d => d.cat === c));
+    $('#docs').innerHTML = cats.length ? cats.map(c => {
+      const items = shown.filter(d => d.cat === c);
+      return `<div class="doccat"><h3>${esc(c)}<span>${items.length}</span></h3><div class="card" style="box-shadow:none">${items.map(d => {
+        const on = !!state.docs[d.id];
+        return `<div class="doc ${on ? 'got' : ''}"><div><div class="name">${esc(d.name)}</div><div class="why">${esc(d.why)}</div><span class="reason">${esc(d.reason)}</span></div>
+          <button type="button" class="toggle" role="switch" aria-checked="${on}" data-doc="${d.id}" aria-label="Received: ${esc(d.name)}"><i></i>${on ? 'Received' : 'Pending'}</button></div>`;
+      }).join('')}</div></div>`;
+    }).join('') : `<div class="card empty">${docFilter === 'got' ? 'Nothing marked as received yet. Switch the toggle on each document as it arrives.' : 'Every document is in. Head to Finalize to complete go-live checks.'}</div>`;
+    document.querySelectorAll('[data-docfilter]').forEach(b => b.setAttribute('aria-pressed', b.dataset.docfilter === docFilter));
+  }
+  $('#docs').addEventListener('click', e => {
+    const t = e.target.closest('[data-doc]'); if (!t) return;
+    state.docs[t.dataset.doc] = !state.docs[t.dataset.doc]; save(); renderDocs();
+  });
+  document.querySelectorAll('[data-docfilter]').forEach(b => b.addEventListener('click', () => { docFilter = b.dataset.docfilter; renderDocs(); }));
+
+  /* ---------- process ---------- */
+  function renderProcess() {
+    const a = A();
+    $('#processModel').textContent = a.model && MODEL_LABEL[a.model]
+      ? `Timeline for your path: ${MODEL_LABEL[a.model]}. Phases overlap; documents and access requests run in parallel.`
+      : 'Typical timeline from first call to steady state. Phases overlap; documents and access requests run in parallel.';
+    $('#timeline').innerHTML = PHASES.map(p => `<div class="phase"><div class="when">${esc(p.days)}</div><div class="rail"><span class="dot"></span></div>
+      <div class="body"><div class="card"><span class="mwhen">${esc(p.days)}</span><h3>${esc(p.name)}</h3><span class="owner">Owner: ${esc(p.owner)}</span>
+      <p>${esc(p.what)}</p>${p.variant && p.variant[a.model] ? `<div class="variant">${esc(p.variant[a.model])}</div>` : ''}
+      <ul>${p.out.map(o => `<li>${esc(o)}</li>`).join('')}</ul></div></div></div>`).join('');
+  }
+
+  /* ---------- finalize ---------- */
+  function renderFinalize() {
+    const qs = allStats(), list = docList(), got = list.filter(d => state.docs[d.id]).length;
+    const dp = list.length ? Math.round(got / list.length * 100) : 0;
+    const gc = GOLIVE.filter((_, i) => state.golive[i]).length;
+    $('#qScore').textContent = qs.pct + '%'; $('#qMeter').style.width = qs.pct + '%';
+    $('#dScore').textContent = dp + '%'; $('#dMeter').style.width = dp + '%';
+    $('#gScore').textContent = `${gc}/${GOLIVE.length}`; $('#gMeter').style.width = Math.round(gc / GOLIVE.length * 100) + '%';
+    $('#golive').innerHTML = GOLIVE.map((g, i) => `<button type="button" class="toggle" role="switch" aria-checked="${!!state.golive[i]}" data-gl="${i}"><i></i>${esc(g)}</button>`).join('');
+    ['soClient', 'soTitle', 'soRep', 'soDate'].forEach(id => { $('#' + id).value = state.signoff[id] || ''; });
+    $('#summary').textContent = summaryText();
+    const ready = gc === GOLIVE.length && state.signoff.soClient && state.signoff.soRep;
+    $('#completeBtn').disabled = !ready;
+    $('#completeBtn').title = ready ? '' : 'Check every go-live item and enter both signatories first';
+    $('#completeMsg').hidden = !state.complete;
+    if (state.complete) $('#completeMsg').textContent = `Onboarding marked complete on ${state.complete}. Welcome to Verinex Group.`;
+  }
+  $('#golive').addEventListener('click', e => { const t = e.target.closest('[data-gl]'); if (!t) return; state.golive[t.dataset.gl] = !state.golive[t.dataset.gl]; save(); renderFinalize(); });
+  ['soClient', 'soTitle', 'soRep', 'soDate'].forEach(id => $('#' + id).addEventListener('input', e => { state.signoff[id] = e.target.value; save(); renderFinalize(); }));
+  $('#completeBtn').addEventListener('click', () => { state.complete = new Date().toLocaleDateString(); save(); renderFinalize(); toast('Onboarding marked complete'); });
+
+  function optLabel(q, v) {
+    if (Array.isArray(v)) return v.map(x => optLabel(q, x)).join(', ');
+    const o = (q.options || []).find(o => (typeof o === 'string' ? o : o.v) === v);
+    return o ? (typeof o === 'string' ? o : o.l) : v;
+  }
+  function summaryText() {
+    const a = A(), lines = ['VERINEX GROUP — CLIENT ONBOARDING SUMMARY', ''];
+    STEPS.forEach(s => {
+      const qs = s.questions.filter(q => visible(q, a) && answered(q, a));
+      if (!qs.length) return;
+      lines.push(s.title.toUpperCase());
+      qs.forEach(q => lines.push(`  ${((q.labelFor && q.labelFor(a)) || q.label).replace(/\?$/, '')}: ${optLabel(q, a[q.id])}`));
+      lines.push('');
+    });
+    const list = docList();
+    lines.push('DOCUMENTS OUTSTANDING');
+    const open = list.filter(d => !state.docs[d.id]);
+    (open.length ? open : [{ name: 'None' }]).forEach(d => lines.push('  [ ] ' + d.name));
+    lines.push('', 'GO-LIVE CHECKS');
+    GOLIVE.forEach((g, i) => lines.push(`  [${state.golive[i] ? 'x' : ' '}] ${g}`));
+    return lines.join('\n');
+  }
+  $('#copyBtn').addEventListener('click', async () => {
+    const txt = summaryText();
+    try { await navigator.clipboard.writeText(txt); toast('Summary copied'); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($('#summary')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Summary selected — press Ctrl+C to copy'); }
+  });
+
+  /* ---------- issues ---------- */
+  let issueCat = 'All';
+  const CATS = ['All', ...new Set(ISSUES.map(i => i.cat))];
+  function renderIssues() {
+    $('#issueCats').innerHTML = CATS.map(c => `<button type="button" class="chip" data-icat="${esc(c)}" aria-pressed="${c === issueCat}">${esc(c)}</button>`).join('');
+    const q = $('#issueQ').value.trim().toLowerCase();
+    const list = ISSUES.filter(i => (issueCat === 'All' || i.cat === issueCat) && (!q || (i.title + ' ' + i.fix + ' ' + i.prevent).toLowerCase().includes(q)));
+    $('#issueList').innerHTML = list.length ? list.map(i => `<details class="issue"><summary><span class="cat">${esc(i.cat)}</span>${esc(i.title)}</summary>
+      <dl class="res"><div><dt>Resolution</dt><dd style="margin:0">${esc(i.fix)}</dd></div><div><dt>Owner</dt><dd style="margin:0">${esc(i.owner)}</dd></div><div><dt>Prevention</dt><dd style="margin:0">${esc(i.prevent)}</dd></div></dl></details>`).join('')
+      : `<div class="card empty">No issues match &ldquo;${esc(q)}&rdquo;. Try a broader word such as &ldquo;ERA&rdquo; or &ldquo;login&rdquo;, or clear the search.</div>`;
+  }
+  $('#issueCats').addEventListener('click', e => { const b = e.target.closest('[data-icat]'); if (b) { issueCat = b.dataset.icat; renderIssues(); } });
+  $('#issueQ').addEventListener('input', renderIssues);
+
+  route();
+})();
+</script>
